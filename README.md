@@ -25,9 +25,27 @@ Speaking about the hard puzzle: while running TLC locally should find the soluti
 cd web
 npm install
 npm run dev        # → http://localhost:3000
+```
 
-# Verify TLA+ specs with TLC (requires Java)
-pip install requests
-python scripts/generate_specs.py 2026-03-09
+## Verify with TLC (offline)
+
+Requires Java 11+ and `tla2tools.jar`:
+
+```bash
+# Download TLC
+curl -fsSL -o tla2tools.jar \
+  https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar
+
+# Verify a cached puzzle
 java -jar tla2tools.jar -config puzzles/2026-03-09/Pips.cfg -deadlock puzzles/2026-03-09/easy.tla
+```
+
+## Generate specs for a specific date
+
+The Python script fetches a puzzle from the NYT API and generates TLA+ data specs:
+
+```bash
+pip install requests
+python scripts/generate_specs.py 2026-03-09          # outputs to puzzles/2026-03-09/
+python scripts/generate_specs.py 2026-03-09 /tmp/out  # custom output dir
 ```

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
 import ReactMarkdown from "react-markdown";
-import { PIPS_SPEC, generateDataSpec, generateCfg } from "../lib/spec-gen";
+import { generateDataSpec, generateCfg } from "../lib/spec-gen";
 import { parseSolution, extractError, extractStats } from "../lib/tlc-parser";
 import { fetchPuzzle } from "../lib/puzzle-api";
 
@@ -43,7 +43,10 @@ export async function getStaticProps() {
       buildDate: today,
       puzzleData,
       dataSpecs,
-      pipsSpec: PIPS_SPEC,
+      pipsSpec: fs.readFileSync(
+        path.join(process.cwd(), "..", "spec", "Pips.tla"),
+        "utf8"
+      ),
       cfg: generateCfg(),
       readme,
     },
