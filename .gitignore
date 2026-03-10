@@ -1,0 +1,21 @@
+# TLC artifacts
+*.bin
+*.st
+*.fp
+*_TTrace_*
+states/
+
+# Build artifacts
+tla2tools.jar
+tlaplus-web-cheerpj.jar
+
+# Next.js
+web/.next/
+web/out/
+web/node_modules/
+
+# OS
+.DS_Store
+
+# Python
+__pycache__/

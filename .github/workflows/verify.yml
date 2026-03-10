@@ -1,0 +1,55 @@
+name: Verify TLC
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'spec/**'
+      - 'scripts/**'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Download tla2tools.jar
+        run: |
+          curl -fsSL -o tla2tools.jar \
+            https://github.com/tlaplus/tlaplus/releases/download/v1.8.0/tla2tools.jar
+
+      - name: Generate specs from API
+        run: python scripts/generate_specs.py "$(date +%Y-%m-%d)"
+
+      - name: Verify easy puzzle
+        run: |
+          java -XX:+UseParallelGC -jar tla2tools.jar \
+            -config puzzles/*/Pips.cfg -deadlock puzzles/*/easy.tla \
+            || [ $? -eq 12 ]  # Exit code 12 = invariant violation = solution found
+
+      - name: Verify medium puzzle
+        run: |
+          java -XX:+UseParallelGC -jar tla2tools.jar \
+            -config puzzles/*/Pips.cfg -deadlock puzzles/*/medium.tla \
+            || [ $? -eq 12 ]
+
+      - name: Verify hard puzzle
+        run: |
+          java -XX:+UseParallelGC -Xmx4g -jar tla2tools.jar \
+            -config puzzles/*/Pips.cfg -deadlock -workers 4 puzzles/*/hard.tla \
+            || [ $? -eq 12 ]
