@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
+import ReactMarkdown from "react-markdown";
 import { PIPS_SPEC, generateDataSpec, generateCfg } from "../lib/spec-gen";
 import { parseSolution, extractError, extractStats } from "../lib/tlc-parser";
 import { fetchPuzzle } from "../lib/puzzle-api";
@@ -7,9 +8,21 @@ import { fetchPuzzle } from "../lib/puzzle-api";
 const DIFFICULTIES = ["easy", "medium", "hard"];
 
 export async function getStaticProps() {
+  const fs = require("fs");
+  const path = require("path");
   const today = new Date().toISOString().slice(0, 10);
   let puzzleData = null;
   let dataSpecs = {};
+  let readme = "";
+
+  try {
+    readme = fs.readFileSync(
+      path.join(process.cwd(), "..", "README.md"),
+      "utf8"
+    );
+  } catch (e) {
+    readme = "*README not found.*";
+  }
 
   try {
     const res = await fetch(
@@ -32,6 +45,7 @@ export async function getStaticProps() {
       dataSpecs,
       pipsSpec: PIPS_SPEC,
       cfg: generateCfg(),
+      readme,
     },
   };
 }
@@ -42,21 +56,22 @@ export default function Home({
   dataSpecs: initialDataSpecs,
   pipsSpec: initialPipsSpec,
   cfg,
+  readme,
 }) {
   const [date, setDate] = useState(buildDate);
-  const [difficulty, setDifficulty] = useState("hard");
+  const [difficulty, setDifficulty] = useState("easy");
   const [puzzle, setPuzzle] = useState(initialPuzzle);
   const [dataSpecs, setDataSpecs] = useState(initialDataSpecs);
   // Editable specs
   const [editedPipsSpec, setEditedPipsSpec] = useState(initialPipsSpec);
-  const [editedDataSpec, setEditedDataSpec] = useState(initialDataSpecs?.hard || "");
+  const [editedDataSpec, setEditedDataSpec] = useState(initialDataSpecs?.easy || "");
   const [solving, setSolving] = useState(false);
   const [simulateMode, setSimulateMode] = useState(false);
   const [cheerpjReady, setCheerpjReady] = useState(false);
   const [cheerpjError, setCheerpjError] = useState(null);
   const [output, setOutput] = useState("");
   const [status, setStatus] = useState({ text: "Initializing CheerpJ…", type: "" });
-  const [activeTab, setActiveTab] = useState("data");
+  const [activeTab, setActiveTab] = useState("readme");
   const [stoppedMessage, setStoppedMessage] = useState("");
   const [modulesLoaded, setModulesLoaded] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -297,6 +312,12 @@ export default function Home({
         <div className="panel output-panel">
           <div className="tabs">
             <button
+              className={`tab ${activeTab === "readme" ? "active" : ""}`}
+              onClick={() => setActiveTab("readme")}
+            >
+              README
+            </button>
+            <button
               className={`tab ${activeTab === "data" ? "active" : ""}`}
               onClick={() => setActiveTab("data")}
             >
@@ -320,6 +341,11 @@ export default function Home({
             >
               TLC Output
             </button>
+          </div>
+          <div
+            className={`tab-content readme-content ${activeTab === "readme" ? "active" : ""}`}
+          >
+            <ReactMarkdown>{readme}</ReactMarkdown>
           </div>
           <textarea
             className={`tab-content spec-editor ${activeTab === "data" ? "active" : ""}`}

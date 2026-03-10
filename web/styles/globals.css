@@ -231,6 +231,25 @@ textarea.spec-editor:focus {
   outline: 1px solid var(--accent);
 }
 
+/* README tab */
+.readme-content {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.85rem;
+  white-space: normal;
+  word-break: normal;
+}
+
+.readme-content h1 { font-size: 1.4rem; margin: 0 0 0.5rem; }
+.readme-content h2 { font-size: 1.1rem; margin: 1.2rem 0 0.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+.readme-content p { margin: 0.5rem 0; }
+.readme-content a { color: var(--accent); }
+.readme-content code { background: var(--bg); padding: 1px 4px; border-radius: 3px; font-size: 0.8rem; }
+.readme-content pre { background: var(--bg); padding: 8px 12px; border-radius: 4px; overflow-x: auto; }
+.readme-content pre code { background: none; padding: 0; }
+.readme-content ol, .readme-content ul { padding-left: 1.5rem; margin: 0.4rem 0; }
+.readme-content li { margin: 0.2rem 0; }
+.readme-content img { max-width: 100%; }
+
 /* Status bar */
 .status-bar {
   padding: 8px 0;
