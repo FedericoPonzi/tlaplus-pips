@@ -57,7 +57,7 @@ function svgEl(tag, attrs = {}) {
  */
 function constraintLabel(region) {
   if (region.type === "sum") return `Σ${region.target}`;
-  if (region.type === "equals") return `=${region.target}`;
+  if (region.type === "equals") return "=";
   if (region.type === "greater") return `>${region.target}`;
   return "";
 }

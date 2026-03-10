@@ -1,9 +1,19 @@
 /**
  * Generate TLA+ specs from PIPS puzzle JSON data.
- * JavaScript port of scripts/generate_specs.py.
+ *
+ * Produces two files:
+ *   - Pips.tla: core algorithm with CONSTANTS (shared across difficulties)
+ *   - <difficulty>.tla: puzzle data definitions + INSTANCE Pips
  */
 
-const CORE_LOGIC = `
+/**
+ * Core algorithm spec with CONSTANTS declared (no puzzle data).
+ */
+export const PIPS_SPEC = `---- MODULE Pips ----
+EXTENDS Integers, Sequences, FiniteSets
+
+CONSTANTS DominoValues, GridCells, Regions
+
 \\* ===== DERIVED CONSTANTS =====
 
 NumDominoes == Len(DominoValues)
@@ -113,16 +123,15 @@ function fmtCellSet(cells) {
 }
 
 /**
- * Generate a complete TLA+ spec string for a puzzle difficulty.
+ * Generate a data spec that defines puzzle constants and instances Pips.
  * @param {object} difficultyData - Puzzle data for one difficulty
- * @param {string} moduleName - Module name (must match filename without .tla)
- * @returns {string} Complete .tla file content
+ * @param {string} moduleName - Module name (e.g. "easy", "medium", "hard")
+ * @returns {string} .tla file content
  */
-export function generateSpec(difficultyData, moduleName = "Pips") {
+export function generateDataSpec(difficultyData, moduleName = "hard") {
   const dominoes = difficultyData.dominoes;
   const regions = difficultyData.regions;
 
-  // Grid cells = union of all region cells
   const gridCellsSet = new Set();
   for (const region of regions) {
     for (const cell of region.indices) {
@@ -133,14 +142,13 @@ export function generateSpec(difficultyData, moduleName = "Pips") {
     .map((s) => s.split(",").map(Number))
     .sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 
-  // Only keep regions with actual constraints
   const constraintRegions = regions.filter((r) => r.type !== "empty");
 
   const lines = [];
   lines.push(`---- MODULE ${moduleName} ----`);
   lines.push("EXTENDS Integers, Sequences, FiniteSets");
   lines.push("");
-  lines.push("\\* Auto-generated from NYT PIPS API.");
+  lines.push("\\* Auto-generated puzzle data from NYT PIPS API.");
   lines.push("");
 
   // Domino values
@@ -176,8 +184,16 @@ export function generateSpec(difficultyData, moduleName = "Pips") {
     );
   });
   lines.push(">>");
+  lines.push("");
 
-  return lines.join("\n") + "\n" + CORE_LOGIC;
+  lines.push("VARIABLES grid, usedDominoes");
+  lines.push("");
+  lines.push("INSTANCE Pips");
+  lines.push("");
+  lines.push("====");
+  lines.push("");
+
+  return lines.join("\n");
 }
 
 /**
@@ -186,4 +202,73 @@ export function generateSpec(difficultyData, moduleName = "Pips") {
  */
 export function generateCfg() {
   return "INIT Init\nNEXT Next\nINVARIANT NotSolved\nCONSTRAINT PartialConstraintsOk\n";
+}
+
+/**
+ * Generate a single combined spec (for backward compatibility / offline verification).
+ * @param {object} difficultyData - Puzzle data for one difficulty
+ * @param {string} moduleName - Module name
+ * @returns {string} Complete self-contained .tla file
+ */
+export function generateSpec(difficultyData, moduleName = "Pips") {
+  const dominoes = difficultyData.dominoes;
+  const regions = difficultyData.regions;
+
+  const gridCellsSet = new Set();
+  for (const region of regions) {
+    for (const cell of region.indices) {
+      gridCellsSet.add(`${cell[0]},${cell[1]}`);
+    }
+  }
+  const gridCells = [...gridCellsSet]
+    .map((s) => s.split(",").map(Number))
+    .sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+
+  const constraintRegions = regions.filter((r) => r.type !== "empty");
+
+  const lines = [];
+  lines.push(`---- MODULE ${moduleName} ----`);
+  lines.push("EXTENDS Integers, Sequences, FiniteSets");
+  lines.push("");
+  lines.push("\\* Auto-generated from NYT PIPS API.");
+  lines.push("");
+
+  lines.push("DominoValues == <<");
+  dominoes.forEach((d, i) => {
+    const comma = i < dominoes.length - 1 ? "," : "";
+    lines.push(`    <<${d[0]}, ${d[1]}>>${comma}`);
+  });
+  lines.push(">>");
+  lines.push("");
+
+  lines.push("GridCells == {");
+  const cellStrs = gridCells.map(fmtCell);
+  for (let i = 0; i < cellStrs.length; i += 5) {
+    const chunk = cellStrs.slice(i, i + 5);
+    let line = "    " + chunk.join(", ");
+    if (i + 5 < cellStrs.length) line += ",";
+    lines.push(line);
+  }
+  lines.push("}");
+  lines.push("");
+
+  lines.push("Regions == <<");
+  constraintRegions.forEach((r, i) => {
+    const cellsStr = fmtCellSet(r.indices);
+    const rtype = r.type;
+    const target = r.target || 0;
+    const comma = i < constraintRegions.length - 1 ? "," : "";
+    lines.push(
+      `    [cells |-> ${cellsStr}, type |-> "${rtype}", target |-> ${target}]${comma}`
+    );
+  });
+  lines.push(">>");
+
+  // Inline core logic (replacing CONSTANTS with direct definitions)
+  const coreBody = PIPS_SPEC
+    .split("\n")
+    .filter((l) => !l.startsWith("---- MODULE") && !l.startsWith("====") && !l.startsWith("CONSTANTS "))
+    .join("\n");
+
+  return lines.join("\n") + "\n" + coreBody + "\n====\n";
 }

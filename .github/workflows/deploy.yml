@@ -22,11 +22,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Checkout tlaplus-web java-wrapper
+      - name: Checkout tlaplus-web (Java wrapper)
         uses: actions/checkout@v4
         with:
           repository: federicoponzi/tlaplus-web
-          path: tlaplus-web-src
+          path: tlaplus-web
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -35,11 +35,11 @@ jobs:
           java-version: '11'
 
       - name: Build CheerpJ JAR
-        working-directory: tlaplus-web-src/java-wrapper
+        working-directory: tlaplus-web/java-wrapper
         run: ./gradlew buildWebJar
 
       - name: Copy JAR to public/
-        run: cp tlaplus-web-src/java-wrapper/build/libs/tlaplus-web-cheerpj.jar web/public/
+        run: cp tlaplus-web/java-wrapper/build/libs/tlaplus-web-cheerpj.jar web/public/
 
       - name: Set up Node.js
         uses: actions/setup-node@v4

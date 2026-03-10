@@ -3,11 +3,18 @@ EXTENDS Integers, Sequences, FiniteSets
 
 CONSTANTS DominoValues, GridCells, Regions
 
+\* ===== DERIVED CONSTANTS =====
+
 NumDominoes == Len(DominoValues)
 NumRegions == Len(Regions)
 
+\* ===== VARIABLES =====
+
 VARIABLES grid, usedDominoes
+
 vars == <<grid, usedDominoes>>
+
+\* ===== HELPERS =====
 
 CellLT(a, b) ==
     \/ a[1] < b[1]
@@ -30,6 +37,8 @@ SetSum(S) ==
     IF S = {} THEN 0
     ELSE LET x == CHOOSE x \in S : TRUE
          IN grid[x] + SetSum(S \ {x})
+
+\* ===== CONSTRAINT CHECKING =====
 
 CheckRegion(i) ==
     LET r == Regions[i] IN
@@ -65,6 +74,8 @@ PartialConstraintsOk ==
                 ELSE TRUE
               [] OTHER -> TRUE
 
+\* ===== STATE MACHINE =====
+
 Init ==
     /\ grid = [c \in GridCells |-> -1]
     /\ usedDominoes = {}
@@ -81,6 +92,8 @@ Next ==
                   IN \/ grid' = [grid EXCEPT ![cell] = a, ![nbr] = b]
                      \/ (a /= b /\ grid' = [grid EXCEPT ![cell] = b, ![nbr] = a])
                /\ usedDominoes' = usedDominoes \cup {d}
+
+\* ===== INVARIANT =====
 
 NotSolved ==
     \/ EmptyCells /= {}

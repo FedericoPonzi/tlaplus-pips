@@ -89,6 +89,22 @@ header h1 span {
   cursor: not-allowed;
 }
 
+.stop-btn {
+  background: var(--error);
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.stop-btn:hover {
+  background: #c94345;
+}
+
 /* Main layout */
 main {
   display: flex;
@@ -174,6 +190,29 @@ main {
 
 .tab-content.active {
   display: block;
+}
+
+/* Spec editor textarea */
+textarea.spec-editor {
+  resize: none;
+  color: var(--text);
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 0 4px 4px 4px;
+  padding: 12px;
+  font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  flex: 1;
+  tab-size: 4;
+}
+
+textarea.spec-editor.active {
+  display: block;
+}
+
+textarea.spec-editor:focus {
+  outline: 1px solid var(--accent);
 }
 
 /* Status bar */

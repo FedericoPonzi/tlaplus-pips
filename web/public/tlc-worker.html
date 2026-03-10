@@ -52,7 +52,13 @@
         return;
       }
       try {
-        const { spec, cfg, workers, checkDeadlock } = event.data;
+        const { spec, cfg, workers, checkDeadlock, extraFiles } = event.data;
+        // Write any extra files (e.g., Pips.tla library) before running
+        if (extraFiles) {
+          for (const [name, content] of Object.entries(extraFiles)) {
+            await TlcRunnerClass.writeFile(`/files/${name}`, content);
+          }
+        }
         capturing = true;
         const result = await TlcRunnerClass.run(spec, cfg, workers, checkDeadlock);
         capturing = false;

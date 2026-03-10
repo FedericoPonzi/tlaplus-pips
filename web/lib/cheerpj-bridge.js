@@ -18,7 +18,17 @@ let initPromise = null;
 let listenerAdded = false;
 
 function getWorkerUrl() {
-  // Relative URL — resolved against the current page origin + path
+  // Use a different hostname to get a cross-origin iframe.
+  // Cross-origin iframes run in a separate browser process (site isolation),
+  // so CheerpJ's heavy computation won't block the parent page's event loop.
+  const loc = window.location;
+  if (loc.hostname === "localhost") {
+    return `${loc.protocol}//127.0.0.1:${loc.port}${loc.pathname.replace(/\/[^/]*$/, "/") }tlc-worker.html`;
+  }
+  if (loc.hostname === "127.0.0.1") {
+    return `${loc.protocol}//localhost:${loc.port}${loc.pathname.replace(/\/[^/]*$/, "/")}tlc-worker.html`;
+  }
+  // Production: same-origin fallback (page may freeze during hard puzzles)
   return "tlc-worker.html";
 }
 
@@ -87,13 +97,14 @@ export function initCheerpJ() {
 
 /**
  * Run TLC with the given spec and config.
- * @param {string} spec - TLA+ spec content
+ * @param {string} spec - TLA+ spec content (main module)
  * @param {string} cfg - TLC config content
  * @param {{ workers: number, checkDeadlock: boolean }} options
  * @param {function(string): void} [onProgress] - Called with each output line as it arrives
+ * @param {Object<string, string>} [extraFiles] - Additional files to write (e.g. {"Pips.tla": "..."})
  * @returns {Promise<string>} TLC output
  */
-export async function runTlc(spec, cfg, options, onProgress) {
+export async function runTlc(spec, cfg, options, onProgress, extraFiles) {
   // Wait for any pending iframe reload to complete
   if (initPromise) {
     await initPromise;
@@ -113,6 +124,7 @@ export async function runTlc(spec, cfg, options, onProgress) {
         cfg,
         workers: options.workers,
         checkDeadlock: options.checkDeadlock,
+        extraFiles: extraFiles || null,
       },
       "*"
     );
@@ -122,6 +134,18 @@ export async function runTlc(spec, cfg, options, onProgress) {
   initPromise = createIframe();
 
   return output;
+}
+
+/**
+ * Stop a running TLC execution by destroying and recreating the iframe.
+ */
+export function stopTlc() {
+  if (resultResolve) {
+    resultResolve(null);
+    resultResolve = null;
+  }
+  progressCallback = null;
+  initPromise = createIframe();
 }
 
 /**
