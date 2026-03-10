@@ -28,7 +28,7 @@ Regions == <<
     [cells |-> {<<1,4>>, <<1,5>>}, type |-> "sum", target |-> 6]
 >>
 
-VARIABLES grid, usedDominoes
+VARIABLES grid, usedDominoes, usedFaces
 
 INSTANCE Pips
 

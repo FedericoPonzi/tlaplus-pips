@@ -30,7 +30,15 @@
         javaProperties: [
           "java.awt.headless=true",
           "com.sun.management.jmxremote=false",
+          "tlc2.TLC.progressInterval=10",
         ],
+        natives: {
+          // Yield to browser event loop so CheerpJ flushes console.log buffer.
+          // Called by TeeOutputStream on each newline, enabling progress streaming.
+          async Java_me_fponzi_tlaplusweb_TlcRunner_yieldToJs(lib) {
+            await new Promise(resolve => setTimeout(resolve, 0));
+          }
+        },
       });
       const jarPath = `/app${location.pathname.replace(/\/[^/]*$/, '')}/tlaplus-web-cheerpj.jar`;
       const lib = await cheerpjRunLibrary(jarPath);

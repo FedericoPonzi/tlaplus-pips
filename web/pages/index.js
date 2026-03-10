@@ -58,12 +58,25 @@ export default function Home({
   const [activeTab, setActiveTab] = useState("data");
   const [stoppedMessage, setStoppedMessage] = useState("");
   const [modulesLoaded, setModulesLoaded] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   const puzzleRef = useRef(null);
   const rendererRef = useRef(null);
   const outputRef = useRef(null);
   const cheerpjRef = useRef(null);
   const renderPuzzleFn = useRef(null);
+  const solveStartRef = useRef(null);
+
+  // Elapsed time counter while solving
+  useEffect(() => {
+    if (!solving) return;
+    solveStartRef.current = Date.now();
+    setElapsedTime(0);
+    const interval = setInterval(() => {
+      setElapsedTime(Math.floor((Date.now() - solveStartRef.current) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [solving]);
 
   // Load browser-only modules and init CheerpJ
   useEffect(() => {
@@ -325,6 +338,7 @@ export default function Home({
           <div className={`status-bar ${status.type}`}>
             {solving && <span className="spinner" />}
             {status.text}
+            {solving && elapsedTime > 0 && ` (${elapsedTime}s)`}
           </div>
         </div>
       </main>

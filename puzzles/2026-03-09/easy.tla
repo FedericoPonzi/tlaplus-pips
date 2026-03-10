@@ -23,7 +23,7 @@ Regions == <<
     [cells |-> {<<1,4>>}, type |-> "greater", target |-> 4]
 >>
 
-VARIABLES grid, usedDominoes
+VARIABLES grid, usedDominoes, usedFaces
 
 INSTANCE Pips
 

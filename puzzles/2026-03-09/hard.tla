@@ -45,7 +45,7 @@ Regions == <<
     [cells |-> {<<5,2>>, <<5,3>>}, type |-> "equals", target |-> 0]
 >>
 
-VARIABLES grid, usedDominoes
+VARIABLES grid, usedDominoes, usedFaces
 
 INSTANCE Pips
 
