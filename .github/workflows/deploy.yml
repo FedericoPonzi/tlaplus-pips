@@ -3,8 +3,6 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-  schedule:
-    - cron: "30 5 * * *"  # Daily at 5:30 UTC — fetch new puzzle
   workflow_dispatch:
 
 permissions:

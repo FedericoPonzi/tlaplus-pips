@@ -137,6 +137,14 @@ export default function Home({
     }
   }, [puzzle, difficulty, modulesLoaded]);
 
+  // Auto-fetch today's puzzle if build data is stale
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    if (buildDate !== today) {
+      handleDateChange(today);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Update data spec when difficulty changes
   useEffect(() => {
     const spec = dataSpecs?.[difficulty];
