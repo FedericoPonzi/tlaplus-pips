@@ -105,6 +105,22 @@ header h1 span {
   background: #c94345;
 }
 
+.simulate-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #aaa;
+  cursor: pointer;
+  user-select: none;
+}
+
+.simulate-toggle input {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+}
+
 /* Main layout */
 main {
   display: flex;

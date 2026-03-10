@@ -60,7 +60,7 @@
         return;
       }
       try {
-        const { spec, cfg, workers, checkDeadlock, extraFiles } = event.data;
+        const { spec, cfg, workers, checkDeadlock, extraFiles, simulate } = event.data;
         // Write any extra files (e.g., Pips.tla library) before running
         if (extraFiles) {
           for (const [name, content] of Object.entries(extraFiles)) {
@@ -68,7 +68,7 @@
           }
         }
         capturing = true;
-        const result = await TlcRunnerClass.run(spec, cfg, workers, checkDeadlock);
+        const result = await TlcRunnerClass.run(spec, cfg, workers, checkDeadlock, !!simulate);
         capturing = false;
         const output = result ? String(result) : "TLC completed but produced no output.";
         parent.postMessage({ type: "result", output }, "*");

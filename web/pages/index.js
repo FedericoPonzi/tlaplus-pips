@@ -51,6 +51,7 @@ export default function Home({
   const [editedPipsSpec, setEditedPipsSpec] = useState(initialPipsSpec);
   const [editedDataSpec, setEditedDataSpec] = useState(initialDataSpecs?.hard || "");
   const [solving, setSolving] = useState(false);
+  const [simulateMode, setSimulateMode] = useState(false);
   const [cheerpjReady, setCheerpjReady] = useState(false);
   const [cheerpjError, setCheerpjError] = useState(null);
   const [output, setOutput] = useState("");
@@ -165,7 +166,7 @@ export default function Home({
       const result = await cheerpjRef.current.runTlc(
         editedDataSpec,
         cfg,
-        { workers: 1, checkDeadlock: false },
+        { workers: 1, checkDeadlock: false, simulate: simulateMode },
         (line) => setOutput((prev) => prev + line + "\n"),
         { "Pips.tla": editedPipsSpec }
       );
@@ -267,6 +268,15 @@ export default function Home({
                   : "Loading CheerpJ…"}
             </button>
           )}
+          <label className="simulate-toggle" title="Random DFS — can be much faster but results vary between runs">
+            <input
+              type="checkbox"
+              checked={simulateMode}
+              onChange={(e) => setSimulateMode(e.target.checked)}
+              disabled={solving}
+            />
+            Simulate
+          </label>
         </div>
       </header>
 

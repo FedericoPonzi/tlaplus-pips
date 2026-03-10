@@ -99,7 +99,7 @@ export function initCheerpJ() {
  * Run TLC with the given spec and config.
  * @param {string} spec - TLA+ spec content (main module)
  * @param {string} cfg - TLC config content
- * @param {{ workers: number, checkDeadlock: boolean }} options
+ * @param {{ workers: number, checkDeadlock: boolean, simulate?: boolean }} options
  * @param {function(string): void} [onProgress] - Called with each output line as it arrives
  * @param {Object<string, string>} [extraFiles] - Additional files to write (e.g. {"Pips.tla": "..."})
  * @returns {Promise<string>} TLC output
@@ -124,6 +124,7 @@ export async function runTlc(spec, cfg, options, onProgress, extraFiles) {
         cfg,
         workers: options.workers,
         checkDeadlock: options.checkDeadlock,
+        simulate: options.simulate || false,
         extraFiles: extraFiles || null,
       },
       "*"
