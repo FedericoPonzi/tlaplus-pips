@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0",
+    "prefetch": "node scripts/prefetch-puzzles.mjs",
+    "dev": "node scripts/prefetch-puzzles.mjs && next dev -H 0.0.0.0",
+    "prebuild": "node scripts/prefetch-puzzles.mjs",
     "build": "next build",
     "start": "next start"
   },

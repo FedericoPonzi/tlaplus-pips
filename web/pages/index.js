@@ -62,6 +62,14 @@ export default function Home({
   readme,
 }) {
   const [date, setDate] = useState(buildDate);
+  // Date picker is limited to the window prefetched at build time
+  // (see scripts/prefetch-puzzles.mjs; keep PREFETCH_DAYS in sync).
+  const dateMax = buildDate;
+  const dateMin = (() => {
+    const d = new Date(`${buildDate}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - 13);
+    return d.toISOString().slice(0, 10);
+  })();
   const [difficulty, setDifficulty] = useState("easy");
   const [puzzle, setPuzzle] = useState(initialPuzzle);
   const [dataSpecs, setDataSpecs] = useState(initialDataSpecs);
@@ -259,6 +267,8 @@ export default function Home({
           <input
             type="date"
             value={date}
+            min={dateMin}
+            max={dateMax}
             onChange={(e) => handleDateChange(e.target.value)}
             title="Puzzle date"
           />
